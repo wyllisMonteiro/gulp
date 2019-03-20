@@ -12,7 +12,6 @@
   "devDependencies": {
     "gulp-autoprefixer": "^6.0.0",
     "gulp-clean-css": "^3.10.0",
-    "gulp-minify": "^3.1.0",
     "node-sass": "^4.10.0"
   },
   "scripts": {
