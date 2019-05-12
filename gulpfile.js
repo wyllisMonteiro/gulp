@@ -1,5 +1,5 @@
 var gulp            = require('gulp');
-var sass            = require('gulp-sass');
+var sassPackage     = require('gulp-sass');
 var autoprefixer    = require('gulp-autoprefixer');
 var cleanCSS        = require('gulp-clean-css');
 var uglify          = require('gulp-uglify');
@@ -7,17 +7,24 @@ var rename          = require('gulp-rename');
 
 var config          = require('./config/config')
 
-// CSS OR SASS
-var mode = "sass"
+sassPackage.compiler = require('node-sass');
 
-sass.compiler = require('node-sass');
+gulp.task( 'default', gulp.parallel(sass, js) );
+gulp.task("sass", sass)
+gulp.task("css", css)
+gulp.task("js", js);
 
-gulp.task( 'default', [mode, "js"] );
+/**********************/
+/****** LISTENER ******/
+/**********************/
 
-gulp.task( 'sass', function() {
-    // Create SASS to CSS file
+gulp.task( 'watch', gulp.parallel(sass_watch, js_watch) );
+gulp.task( 'sass:watch', sass_watch);
+gulp.task( 'js:watch', js_watch);
+
+function sass() {
     return gulp.src( config.sass.src_path )
-        .pipe( sass().on('error', sass.logError) )
+        .pipe( sassPackage().on('error', sassPackage.logError) )
         .pipe( autoprefixer({
             browsers: ['last 2 versions'],
             cascade: false
@@ -25,11 +32,10 @@ gulp.task( 'sass', function() {
         .pipe( cleanCSS( {compatibility: 'ie11'} ) )
         .pipe( rename({ suffix: '.min' } ) )
         .pipe( gulp.dest( config.sass.dest_path ) );
-});
- 
-gulp.task( 'css', function() {
-  return gulp.src( config.min_css.src_path )
+}
 
+function css() {
+    return gulp.src( config.min_css.src_path )
         .pipe( autoprefixer({
             browsers: ['last 2 versions'],
             cascade: false
@@ -37,26 +43,20 @@ gulp.task( 'css', function() {
         .pipe( cleanCSS( {compatibility: 'ie11'} ) )
         .pipe( rename({ suffix: '.min' } ) )
         .pipe( gulp.dest( config.min_css.dest_path ) );
-});
+}
 
-gulp.task( 'js', function() {
+function js() {
     gulp.src([config.min_js.src_path])
-
         .pipe( uglify() )
         .pipe( rename({ suffix: '.min' } ) )
         .pipe( gulp.dest( config.min_js.dest_path ) )
-});
+}
 
-/**********************/
-/****** LISTENER ******/
-/**********************/
+/* WATCHERS */
+function sass_watch() {
+    gulp.watch(config.live_sass.watch, sass);
+}
 
-gulp.task( 'watch', ["sass:watch", "js:watch"] );
-
-gulp.task( 'sass:watch', function() {
-    gulp.watch( config.live_sass.watch, ['sass'] );
-});
-
-gulp.task( 'js:watch', function() {
-    gulp.watch( config.live_js.watch, ['js'] );
-});
+function js_watch() {
+    gulp.watch( config.live_js.watch, js);
+}

@@ -1,5 +1,7 @@
 body {
-  color: red;
-  font-size: 1rem;
-  display: flex;
+    color: red;
+}
+
+h1 {
+    color: gray;
 }
